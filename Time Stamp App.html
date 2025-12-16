@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Critical for mobile scaling -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Timestamp Tool</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      background-color: #FF0000; /* YouTube red */
+    }
+    button {
+      padding: 1em 2em;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 8px;
+      background-color: #282828;
+      color: white;
+      cursor: pointer;
+    }
+    /* Galaxy S21+ portrait (≈412px wide) */
+    @media (max-width: 412px) {
+      button {
+        width: 90%;
+        font-size: 1em;
+      }
+    }
+    /* Galaxy S21+ landscape (≈915px wide) */
+    @media (max-width: 915px) and (orientation: landscape) {
+      button {
+        width: 60%;
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button id="timestampBtn">Curate Timestamp Link</button>
+
+  <script>
+    document.getElementById("timestampBtn").addEventListener("click", async () => {
+      try {
+        // Read clipboard
+        const clipText = await navigator.clipboard.readText();
+        if (!clipText.includes("youtu.be/") && !clipText.includes("youtube.com/watch")) {
+          alert("Clipboard doesn't contain a YouTube link");
+          return;
+        }
+
+        // Normalize URL
+        const url = (clipText.match(/^[^?]*\?/) || [null])[0] || clipText.split("?")[0] + "?";
+
+        // Prompt for timestamp
+        const time = prompt("Enter minutes:seconds");
+        if (!time) return;
+
+        const [m, s] = time.split(":").map(x => parseInt(x));
+        const secs = m * 60 + s;
+        const link = `${url}t=${secs}`;
+
+        // Copy curated link back to clipboard
+        await navigator.clipboard.writeText(link);
+        alert("Copied: " + link);
+      } catch (err) {
+        console.error("Clipboard error", err);
+        alert("Clipboard blocked — ensure HTTPS or localhost.");
+      }
+    });
+  </script>
+</body>
+</html>
+
